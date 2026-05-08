@@ -1,0 +1,58 @@
+{
+  "name": "eslint-plugin-typeorm-enterprise",
+  "version": "1.0.0",
+  "description": "ESLint plugin to prevent raw SQL usage in TypeORM applications and support enterprise backend governance.",
+  "keywords": [
+    "eslint",
+    "eslintplugin",
+    "typeorm",
+    "sql",
+    "governance",
+    "backend",
+    "enterprise",
+    "security"
+  ],
+  "license": "MIT",
+  "author": "alokraj68",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-user/eslint-plugin-typeorm-enterprise.git"
+  },
+  "main": "./lib/index.cjs",
+  "module": "./lib/index.mjs",
+  "types": "./lib/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./lib/index.cjs",
+      "import": "./lib/index.mjs",
+      "types": "./lib/index.d.ts"
+    },
+    "./rules/no-raw-query": {
+      "require": "./lib/rules/no-raw-query.cjs",
+      "import": "./lib/rules/no-raw-query.mjs",
+      "types": "./lib/rules/no-raw-query.d.ts"
+    }
+  },
+  "files": [
+    "lib",
+    "tests",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node tests/no-raw-query.test.js",
+    "lint": "npx eslint . --ext .js",
+    "prepare": "node -e \"console.log('Ready for publishing')\""
+  },
+  "peerDependencies": {
+    "eslint": "^9.0.0 || ^10.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "eslint": "^9.16.0",
+    "typescript": "^5.5.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
