@@ -16,7 +16,7 @@
   "author": "alokraj68",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-user/eslint-plugin-typeorm-enterprise.git"
+    "url": "https://github.com/alokraj68/eslint-plugin-typeorm-enterprise.git"
   },
   "main": "./lib/index.cjs",
   "module": "./lib/index.mjs",
@@ -42,7 +42,9 @@
   "scripts": {
     "test": "node tests/no-raw-query.test.js",
     "lint": "npx eslint . --ext .js",
-    "prepare": "node -e \"console.log('Ready for publishing')\""
+    "prepare": "node -e \"console.log('Ready for publishing')\"",
+    "build": "npm pack",
+    "publish": "npm run build && npm publish --access public"
   },
   "peerDependencies": {
     "eslint": "^9.0.0 || ^10.0.0"
