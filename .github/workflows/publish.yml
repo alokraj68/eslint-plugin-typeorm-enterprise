@@ -1,0 +1,63 @@
+name: Publish package
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: publish-${{ github.ref_name }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run lint
+        run: npm run lint
+
+      - name: Run tests
+        run: npm run test
+
+      - name: Build package
+        run: npm run build
+
+      - name: Verify package contents
+        run: npm pack --dry-run
+
+      - id: check-published-version
+        name: Check if version already exists on npm
+        run: |
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          echo "Publishing $PACKAGE_NAME@$PACKAGE_VERSION"
+          if npm view "$PACKAGE_NAME@$PACKAGE_VERSION" version >/dev/null 2>&1; then
+            echo "skip_publish=true" >> $GITHUB_OUTPUT
+            echo "Version $PACKAGE_VERSION already exists on npm, skipping publish."
+          else
+            echo "skip_publish=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Publish to npm
+        if: steps.check-published-version.outputs.skip_publish == 'false'
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
