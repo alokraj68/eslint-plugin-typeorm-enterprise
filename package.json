@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-typeorm-enterprise",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "ESLint plugin to prevent raw SQL usage in TypeORM applications and support enterprise backend governance.",
   "keywords": [
     "eslint",
