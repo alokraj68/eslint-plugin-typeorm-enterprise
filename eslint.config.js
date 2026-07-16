@@ -1,8 +1,16 @@
-module.exports = {
-  plugins: {
-    'typeorm-enterprise': require('./lib'),
+const typeormEnterprise = require('./lib/index.cjs');
+
+module.exports = [
+  {
+    ignores: ['node_modules/**', 'graphify-out/**', 'coverage/**', 'dist/**'],
   },
-  rules: {
-    'typeorm-enterprise/no-raw-query': 'error',
+  {
+    files: ['**/*.js', '**/*.cjs', '**/*.mjs'],
+    plugins: {
+      'typeorm-enterprise': typeormEnterprise,
+    },
+    rules: {
+      'typeorm-enterprise/no-raw-query': 'error',
+    },
   },
-};
+];
