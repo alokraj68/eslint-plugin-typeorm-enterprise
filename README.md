@@ -201,8 +201,9 @@ enforces the patterns it can prove and stays quiet on everything else.
 - [x] Auto-generated rules table (drift-checked in CI)
 - [x] Runs under both ESLint 9+ and oxlint (JS-plugin API)
 - [x] npm publish via Trusted Publishing (OIDC) with provenance
+- [x] Optional type-aware detection (`no-entity-manager-query` `typeAware`), with graceful AST-only fallback
 - [ ] Autofix suggestions toward Repository / QueryBuilder APIs
-- [ ] Type-aware detection via `@typescript-eslint` services
+- [ ] Extend type-aware mode to the remaining receiver-based rules
 - [ ] Documentation site / playground
 
 ## 🤝 Contributing

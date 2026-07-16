@@ -1,11 +1,18 @@
 import type { Rule } from 'eslint';
 
 import { getFilename, getOptionValue, isIgnoredFilename, normalizeArray } from '../utils/ast.js';
+import { ENTITY_MANAGER_TYPE_NAMES, receiverMatchesTypes } from '../utils/types.js';
 
 // Flags raw `.query()` (and configurable siblings) called on an EntityManager,
 // whether obtained via `getManager()` / `getEntityManager()` or referenced
 // through a `manager` / `entityManager` identifier. EntityManager.query bypasses
 // the repository and query-builder layers entirely.
+//
+// With `{ typeAware: true }` and type information available (typescript-eslint
+// parser + a project), the receiver is confirmed by its TypeScript type instead
+// of its name, which removes false positives on unrelated `.query()` calls and
+// catches EntityManagers under any variable name. Without type information it
+// falls back to the name-based check.
 
 const DEFAULT_METHODS = ['query'];
 const DEFAULT_OBJECT_NAMES = ['manager', 'entityManager'];
@@ -43,6 +50,7 @@ const rule: Rule.RuleModule = {
         properties: {
           methods: { type: 'array', items: { type: 'string' } },
           objectNames: { type: 'array', items: { type: 'string' } },
+          typeAware: { type: 'boolean' },
           ignorePatterns: { type: 'array', items: { type: 'string' } },
         },
         additionalProperties: false,
@@ -57,6 +65,7 @@ const rule: Rule.RuleModule = {
     const options = context.options?.[0] ? context.options[0] : {};
     const methods = new Set(getOptionValue(options, 'methods', DEFAULT_METHODS).map((m) => m.toLowerCase()));
     const objectNames = new Set(getOptionValue(options, 'objectNames', DEFAULT_OBJECT_NAMES));
+    const typeAware = options.typeAware === true;
     const ignorePatterns = normalizeArray(options.ignorePatterns);
 
     return {
@@ -75,10 +84,22 @@ const rule: Rule.RuleModule = {
         }
 
         const object = callee.object;
-        const onManagerIdentifier = object.type === 'Identifier' && objectNames.has(object.name);
         const onManagerFactory = isManagerFactoryCall(object);
+        let isManager = onManagerFactory;
 
-        if (!onManagerIdentifier && !onManagerFactory) {
+        if (!isManager && typeAware) {
+          const typed = receiverMatchesTypes(context, object, ENTITY_MANAGER_TYPE_NAMES);
+          if (typed === null) {
+            // No type information — fall back to the name-based check.
+            isManager = object.type === 'Identifier' && objectNames.has(object.name);
+          } else {
+            isManager = typed;
+          }
+        } else if (!isManager) {
+          isManager = object.type === 'Identifier' && objectNames.has(object.name);
+        }
+
+        if (!isManager) {
           return;
         }
 

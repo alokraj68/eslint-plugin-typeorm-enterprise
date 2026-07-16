@@ -5,6 +5,16 @@ All notable changes to this project are documented here. This project follows
 
 ## [Unreleased]
 
+### Added
+
+- Optional type-aware detection. `no-entity-manager-query` gains a `typeAware`
+  option: with the typescript-eslint parser and type information available, the
+  receiver is confirmed by its TypeScript type (any `EntityManager`, under any
+  name) instead of by identifier name, and it falls back to the name-based check
+  when no type information is present.
+- `RELEASING.md` documenting the fast-forward release process (`main` only ever
+  fast-forwards to `dev`).
+
 ### Changed
 
 - Dev dependencies: bumped `c8` to 11 and `@types/node` to 26; `typescript-eslint`
