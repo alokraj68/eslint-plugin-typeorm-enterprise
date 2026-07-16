@@ -12,5 +12,6 @@ pnpm-lock.yaml
 graphify-out/
 CLAUDE.md
 PLAN.md
+marketing/
 dist/
 .tsup/

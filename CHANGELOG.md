@@ -3,7 +3,17 @@
 All notable changes to this project are documented here. This project follows
 [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [2.0.0] - 2026-07-16
+
+### Breaking
+
+- The build is now published from `dist/` (compiled from a single TypeScript
+  source) instead of the hand-written `lib/` files. The package root import is
+  unchanged, but the per-rule subpath exports (`.../rules/no-raw-query`) have
+  been removed — access rules through the plugin object instead.
+- The plugin's `meta.name` is now `typeorm-enterprise` (used as the rule prefix
+  by oxlint). ESLint users are unaffected — the rule prefix in ESLint comes from
+  the key you register the plugin under.
 
 ### Added
 

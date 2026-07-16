@@ -54,6 +54,13 @@ Raw and dynamically-built SQL scattered across a TypeORM codebase is a governanc
 - [Contributing](#-contributing)
 - [License](#-license)
 
+## ✅ Requirements
+
+- **Node** `>=18`
+- **ESLint** `^9 || ^10` (flat config), or **oxlint** via its JS-plugin API
+- **TypeScript** is optional — the package ships compiled JS and bundled types,
+  so it works with any TypeScript version or none at all.
+
 ## 📦 Installation
 
 ```bash
@@ -218,7 +225,9 @@ Handy scripts:
 | `npm run coverage` | Test with coverage report |
 
 Every push and PR runs the CI matrix; merges to `main` auto-publish when the
-`package.json` version bumps.
+`package.json` version bumps. Please read the
+[Code of Conduct](https://github.com/alokraj68/eslint-plugin-typeorm-enterprise/blob/main/CODE_OF_CONDUCT.md)
+and [Contributing guide](https://github.com/alokraj68/eslint-plugin-typeorm-enterprise/blob/main/CONTRIBUTING.md).
 
 ## 📄 License
 
