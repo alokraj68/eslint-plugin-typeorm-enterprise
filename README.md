@@ -24,17 +24,21 @@ Raw SQL scattered across a TypeORM codebase is a governance and security liabili
 
 | | |
 |---|---|
-| 🚫 **Blocks raw SQL** | Flags `SELECT / INSERT / UPDATE / DELETE / WITH / ALTER / DROP / CREATE / TRUNCATE` passed to `query`, `execute`, `raw` |
-| 🎯 **Low false positives** | Only static strings & template literals — dynamic values (`query(sql)`) are left alone |
+| 🚫 **Blocks raw SQL** | `no-raw-query` flags `SELECT / INSERT / UPDATE / DELETE / WITH / ALTER / DROP / CREATE / TRUNCATE` passed to `query`, `execute`, `raw` |
+| 💉 **Stops SQL injection** | `require-parameterized-query` flags interpolated / concatenated dynamic SQL — steers toward bound parameters |
+| 🎯 **Low false positives** | Conservative by design — non-SQL request/router calls and plain dynamic values are left alone |
 | 🧩 **Configurable** | Allow/restrict operations, methods, object names, and file globs |
-| 🏢 **Enterprise-ready** | Centralize SQL policy across monorepos; extensible for future governance rules |
+| 🎚️ **Severity tiers** | Ship `recommended` (error) and `warn` configs out of the box |
 | 📦 **Dual ESM + CJS** | Ships `.mjs`, `.cjs`, and `.d.ts` — works with flat config and legacy `.eslintrc` |
 
 ## 📚 Table of Contents
 
 - [Installation](#-installation)
 - [Quick Start](#-quick-start)
-- [Rule: `no-raw-query`](#-rule-typeorm-enterpriseno-raw-query)
+- [Configs](#-configs)
+- [Rules](#-rules)
+  - [`no-raw-query`](#-rule-typeorm-enterpriseno-raw-query)
+  - [`require-parameterized-query`](#-rule-typeorm-enterpriserequire-parameterized-query)
 - [Options](#-options)
 - [Examples](#-examples)
 - [How it works](#-how-it-works)
@@ -58,12 +62,15 @@ const typeormEnterprise = require('eslint-plugin-typeorm-enterprise');
 module.exports = [
   {
     plugins: { 'typeorm-enterprise': typeormEnterprise },
-    rules: { 'typeorm-enterprise/no-raw-query': 'error' },
+    rules: {
+      'typeorm-enterprise/no-raw-query': 'error',
+      'typeorm-enterprise/require-parameterized-query': 'error',
+    },
   },
 ];
 ```
 
-Or extend the shipped `recommended` config:
+Or extend a shipped config (see [Configs](#-configs)):
 
 ```js
 const typeormEnterprise = require('eslint-plugin-typeorm-enterprise');
@@ -82,11 +89,61 @@ module.exports = {
 };
 ```
 
+## 🎚️ Configs
+
+| Config | Severity | Rules enabled |
+|---|---|---|
+| `recommended` | `error` | `no-raw-query`, `require-parameterized-query` |
+| `warn` | `warn` | `no-raw-query`, `require-parameterized-query` |
+
+```js
+const typeormEnterprise = require('eslint-plugin-typeorm-enterprise');
+
+// fail the build on violations
+module.exports = [typeormEnterprise.configs.recommended];
+
+// or surface them as warnings first
+module.exports = [typeormEnterprise.configs.warn];
+```
+
+## 📏 Rules
+
+| Rule | Description | Config |
+|---|---|---|
+| [`no-raw-query`](#-rule-typeorm-enterpriseno-raw-query) | Block **static** raw SQL passed to query helpers | 🔴 error |
+| [`require-parameterized-query`](#-rule-typeorm-enterpriserequire-parameterized-query) | Block **dynamic** interpolated / concatenated SQL | 🔴 error |
+
+The two rules are complementary: `no-raw-query` catches SQL you *can* read at
+lint time (string literals), `require-parameterized-query` catches SQL *built*
+at runtime from variables (the injection-prone case).
+
 ## 🔎 Rule: `typeorm-enterprise/no-raw-query`
 
 Prevents raw SQL execution through TypeORM-style methods and standalone query helpers. It inspects the **first argument** for static SQL strings and template literals, and deliberately ignores dynamic values to avoid flagging non-SQL control flow.
 
 **Detected operations:** `SELECT` · `INSERT` · `UPDATE` · `DELETE` · `WITH` · `ALTER` · `DROP` · `CREATE` · `TRUNCATE`
+
+## 🔒 Rule: `typeorm-enterprise/require-parameterized-query`
+
+Flags SQL that is **assembled dynamically** — a template literal with `${...}`
+interpolation, or a `+` concatenation that mixes a SQL string with a variable —
+when passed to `query`, `execute`, or `raw`. This is the classic SQL-injection
+shape; the fix is bound parameters or the QueryBuilder.
+
+```js
+// ❌ invalid — flagged
+query(`SELECT * FROM users WHERE id = ${id}`);
+manager.query('SELECT * FROM users WHERE id = ' + userId);
+db.execute(`UPDATE users SET name = ${name}`);
+
+// ✅ valid
+query('SELECT * FROM users WHERE id = ?', [id]);   // parameterized
+query(sql);                                         // plain dynamic value, no SQL literal
+raw(`hello ${name}`);                               // not SQL
+```
+
+**Options:** `restrictedMethods`, `allowedObjectNames`, `ignorePatterns` (same
+semantics as below).
 
 ## ⚙️ Options
 
@@ -160,15 +217,15 @@ This static-only design is intentional: it enforces the SQL patterns it can prov
 ## 🗺️ Roadmap
 
 - [x] `no-raw-query` rule (static string + template literal detection)
+- [x] `require-parameterized-query` rule (interpolation / concatenation)
 - [x] Configurable operations / methods / object allow-lists
 - [x] `ignorePatterns` glob support
-- [x] Dual ESM + CJS builds with type declarations
-- [x] `recommended` shareable config
-- [x] CI matrix (Node 18/20/22) + automated npm publish with provenance
-- [ ] `no-query-builder-injection` rule
+- [x] Dual ESM + CJS builds with type declarations + parity test
+- [x] `recommended` + `warn` shareable configs
+- [x] CI matrix (Node 18/20/22 · TypeScript 5.5–7.x) + npm publish with provenance
 - [ ] Autofix suggestions toward Repository / QueryBuilder APIs
 - [ ] TypeScript-aware type inference for callee resolution
-- [ ] Additional enterprise governance rules
+- [ ] Additional governance rules (`no-synchronize-true`, `require-transaction`)
 
 ## 🤝 Contributing
 

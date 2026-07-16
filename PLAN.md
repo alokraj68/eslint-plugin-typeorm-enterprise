@@ -17,11 +17,11 @@ Roadmap and working notes for `eslint-plugin-typeorm-enterprise`.
 
 ## Near term
 
+- [x] Second rule: `require-parameterized-query` (interpolated + concatenated SQL).
+- [x] Severity-tiered configs (`recommended` = error, `warn` = warn).
+- [x] Detect string-concatenated / interpolated dynamic SQL (in the new rule).
 - [ ] Autofix / suggestions — offer a rewrite toward QueryBuilder / Repository.
-- [ ] Detect string-concatenated SQL (`'SELECT ' + x`) and tagged templates.
-- [ ] Second rule: `require-parameterized-query` (flag interpolated SQL).
 - [ ] `eslint-doc-generator` for auto-generated rule docs + README rule table.
-- [ ] Severity-tiered configs (`recommended-error`, `recommended-warn`).
 
 ## Medium term
 

@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-typeorm-enterprise",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "ESLint plugin to prevent raw SQL usage in TypeORM applications and support enterprise backend governance.",
   "keywords": [
     "eslint",
@@ -31,6 +31,11 @@
       "require": "./lib/rules/no-raw-query.cjs",
       "import": "./lib/rules/no-raw-query.mjs",
       "types": "./lib/rules/no-raw-query.d.ts"
+    },
+    "./rules/require-parameterized-query": {
+      "require": "./lib/rules/require-parameterized-query.cjs",
+      "import": "./lib/rules/require-parameterized-query.mjs",
+      "types": "./lib/rules/require-parameterized-query.d.ts"
     }
   },
   "files": [
@@ -45,8 +50,8 @@
   "scripts": {
     "build": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
-    "test": "npm run test:rule && npm run test:parity",
-    "test:rule": "node tests/no-raw-query.test.js",
+    "test": "npm run test:rules && npm run test:parity",
+    "test:rules": "node tests/no-raw-query.test.js && node tests/require-parameterized-query.test.js",
     "test:parity": "node tests/parity.test.mjs",
     "lint": "eslint .",
     "ci": "npm run lint && npm run typecheck && npm run test",
