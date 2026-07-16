@@ -1,16 +1,77 @@
-# eslint-plugin-typeorm-enterprise
+<div align="center">
 
-A production-ready ESLint plugin designed to prevent raw SQL execution in TypeORM applications and support enterprise backend governance.
+# 🛡️ eslint-plugin-typeorm-enterprise
 
-## Installation
+**Stop raw SQL before it reaches production.**
+
+A production-ready ESLint plugin that blocks raw SQL execution in TypeORM applications and enforces enterprise backend governance — steering teams toward query builders, repositories, and safe database abstractions.
+
+[![CI](https://github.com/alokraj68/eslint-plugin-typeorm-enterprise/actions/workflows/ci.yml/badge.svg)](https://github.com/alokraj68/eslint-plugin-typeorm-enterprise/actions/workflows/ci.yml)
+[![Publish](https://github.com/alokraj68/eslint-plugin-typeorm-enterprise/actions/workflows/publish.yml/badge.svg)](https://github.com/alokraj68/eslint-plugin-typeorm-enterprise/actions/workflows/publish.yml)
+[![npm version](https://img.shields.io/npm/v/eslint-plugin-typeorm-enterprise.svg)](https://www.npmjs.com/package/eslint-plugin-typeorm-enterprise)
+[![npm downloads](https://img.shields.io/npm/dm/eslint-plugin-typeorm-enterprise.svg)](https://www.npmjs.com/package/eslint-plugin-typeorm-enterprise)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/alokraj68/eslint-plugin-typeorm-enterprise/blob/main/LICENSE)
+[![ESLint 9+](https://img.shields.io/badge/ESLint-9%2B-4B32C3.svg?logo=eslint)](https://eslint.org)
+[![Node >=18](https://img.shields.io/badge/Node-%3E%3D18-339933.svg?logo=node.js&logoColor=white)](https://nodejs.org)
+
+</div>
+
+---
+
+## ✨ Why this plugin?
+
+Raw SQL scattered across a TypeORM codebase is a governance and security liability: it bypasses query builders, invites injection, and fragments data-access patterns across large teams. This plugin catches static raw SQL at lint time — **before review, before merge, before prod** — while staying conservative enough to avoid false positives in ordinary request/router code.
+
+| | |
+|---|---|
+| 🚫 **Blocks raw SQL** | Flags `SELECT / INSERT / UPDATE / DELETE / WITH / ALTER / DROP / CREATE / TRUNCATE` passed to `query`, `execute`, `raw` |
+| 🎯 **Low false positives** | Only static strings & template literals — dynamic values (`query(sql)`) are left alone |
+| 🧩 **Configurable** | Allow/restrict operations, methods, object names, and file globs |
+| 🏢 **Enterprise-ready** | Centralize SQL policy across monorepos; extensible for future governance rules |
+| 📦 **Dual ESM + CJS** | Ships `.mjs`, `.cjs`, and `.d.ts` — works with flat config and legacy `.eslintrc` |
+
+## 📚 Table of Contents
+
+- [Installation](#-installation)
+- [Quick Start](#-quick-start)
+- [Rule: `no-raw-query`](#-rule-typeorm-enterpriseno-raw-query)
+- [Options](#-options)
+- [Examples](#-examples)
+- [How it works](#-how-it-works)
+- [Roadmap](#-roadmap)
+- [Contributing](#-contributing)
+- [License](#-license)
+
+## 📦 Installation
 
 ```bash
 npm install --save-dev eslint eslint-plugin-typeorm-enterprise
 ```
 
-## Usage
+## 🚀 Quick Start
 
-### Legacy `.eslintrc` configuration
+### Flat config — `eslint.config.js` (ESLint 9+)
+
+```js
+const typeormEnterprise = require('eslint-plugin-typeorm-enterprise');
+
+module.exports = [
+  {
+    plugins: { 'typeorm-enterprise': typeormEnterprise },
+    rules: { 'typeorm-enterprise/no-raw-query': 'error' },
+  },
+];
+```
+
+Or extend the shipped `recommended` config:
+
+```js
+const typeormEnterprise = require('eslint-plugin-typeorm-enterprise');
+
+module.exports = [typeormEnterprise.configs.recommended];
+```
+
+### Legacy `.eslintrc`
 
 ```js
 module.exports = {
@@ -21,104 +82,105 @@ module.exports = {
 };
 ```
 
-### Flat config (`eslint.config.js`)
+## 🔎 Rule: `typeorm-enterprise/no-raw-query`
 
-```js
-module.exports = {
-  plugins: {
-    'typeorm-enterprise': require('eslint-plugin-typeorm-enterprise'),
-  },
-  rules: {
-    'typeorm-enterprise/no-raw-query': 'error',
-  },
-};
-```
+Prevents raw SQL execution through TypeORM-style methods and standalone query helpers. It inspects the **first argument** for static SQL strings and template literals, and deliberately ignores dynamic values to avoid flagging non-SQL control flow.
 
-## Rule: `typeorm-enterprise/no-raw-query`
+**Detected operations:** `SELECT` · `INSERT` · `UPDATE` · `DELETE` · `WITH` · `ALTER` · `DROP` · `CREATE` · `TRUNCATE`
 
-This rule prevents raw SQL execution through TypeORM-style methods and standalone query helpers. It focuses on first-argument SQL strings and template literals while avoiding false positives in common request and router patterns.
-
-### Default behavior
-
-The rule flags raw SQL statements passed to `query`, `execute`, and `raw` functions or methods.
-
-### Supported SQL operations
-
-- `SELECT`
-- `INSERT`
-- `UPDATE`
-- `DELETE`
-- `WITH`
-- `ALTER`
-- `DROP`
-- `CREATE`
-- `TRUNCATE`
-
-### Options
-
-The rule accepts an options object:
+## ⚙️ Options
 
 ```js
 {
-  restrictedOperations: [],
-  allowedOperations: [],
-  restrictedMethods: [],
-  allowedObjectNames: [],
-  ignorePatterns: [],
+  restrictedOperations: [], // SQL ops to block (default: all supported)
+  allowedOperations:    [], // ops to permit, overrides restricted
+  restrictedMethods:    [], // methods to inspect (default: ["query","execute","raw"])
+  allowedObjectNames:   [], // object names allowed to run raw SQL
+  ignorePatterns:       [], // file globs to skip entirely
 }
 ```
 
-- `restrictedOperations`: SQL operations to block. Defaults to all supported operations.
-- `allowedOperations`: Overrides blocked operations when an operation is permitted.
-- `restrictedMethods`: Methods to inspect. Defaults to `["query", "execute", "raw"]`.
-- `allowedObjectNames`: Object names that are permitted to execute raw SQL.
-- `ignorePatterns`: File globs to skip entirely.
+| Option | Type | Default | Purpose |
+|---|---|---|---|
+| `restrictedOperations` | `string[]` | all supported ops | Which SQL operations to block |
+| `allowedOperations` | `string[]` | `[]` | Whitelist that overrides restricted ops |
+| `restrictedMethods` | `string[]` | `["query","execute","raw"]` | Method/function names to inspect |
+| `allowedObjectNames` | `string[]` | `[]` | Objects permitted to execute raw SQL |
+| `ignorePatterns` | `string[]` | `[]` | Globs (e.g. `**/migrations/**`) to skip |
 
-### Examples
+## 💡 Examples
 
 ```js
-// invalid
+// ❌ invalid — flagged
 repo.query('SELECT * FROM users');
 manager.query(`DELETE FROM users`);
 db.execute('UPDATE users SET name = ?');
 raw('INSERT INTO users (name) VALUES (?)');
 
-// valid
-req.query.id;
+// ✅ valid — allowed
+req.query.id;                       // property access, not a call
 router.query.page;
-search.query();
-analyticsRepo.query(sqlVariable);
+search.query();                     // no SQL argument
+analyticsRepo.query(sqlVariable);   // dynamic value, not static SQL
 query(dynamicSql);
 ```
 
-### Example with options
+### With options
 
 ```js
-module.exports = {
-  plugins: ['typeorm-enterprise'],
-  rules: {
-    'typeorm-enterprise/no-raw-query': [
-      'error',
-      {
-        allowedOperations: ['SELECT'],
-        allowedObjectNames: ['analyticsRepo'],
-        ignorePatterns: ['**/migrations/**'],
-      },
-    ],
+module.exports = [
+  {
+    plugins: { 'typeorm-enterprise': require('eslint-plugin-typeorm-enterprise') },
+    rules: {
+      'typeorm-enterprise/no-raw-query': [
+        'error',
+        {
+          allowedOperations: ['SELECT'],
+          allowedObjectNames: ['analyticsRepo'],
+          ignorePatterns: ['**/migrations/**'],
+        },
+      ],
+    },
   },
-};
+];
 ```
 
-## Migration-safe rationale
+## 🧠 How it works
 
-This plugin is designed for enterprise-safe backend rules in TypeORM projects. It allows teams to prevent direct raw SQL usage and steer code toward query builders, repository methods, or strong database abstractions.
+For every `CallExpression`, the rule:
 
-The rule is intentionally conservative about dynamic values, only enforcing static SQL string and template literal patterns so it avoids incorrect flags in non-SQL control flow.
+1. Resolves the **callee** (`getCalleeInfo`) → method name + object name.
+2. Skips unless the method is in `restrictedMethods`, and skips allow-listed objects.
+3. Checks the **first argument is static SQL** (`isStaticSqlArgument`) — string literal or expression-free template literal only.
+4. Extracts the text and matches the **leading SQL keyword** (`getFirstSqlOperation`).
+5. Reports only if that operation is in the blocked set — after applying `allowedOperations` and `ignorePatterns`.
 
-## Enterprise governance
+This static-only design is intentional: it enforces the SQL patterns it can prove, and stays quiet on everything dynamic.
 
-By centralizing SQL execution policies, this plugin helps enforce consistent patterns across large teams and monorepos. It's built to be extensible so additional enterprise governance rules can be added later without changing the core architecture.
+## 🗺️ Roadmap
 
-## License
+- [x] `no-raw-query` rule (static string + template literal detection)
+- [x] Configurable operations / methods / object allow-lists
+- [x] `ignorePatterns` glob support
+- [x] Dual ESM + CJS builds with type declarations
+- [x] `recommended` shareable config
+- [x] CI matrix (Node 18/20/22) + automated npm publish with provenance
+- [ ] `no-query-builder-injection` rule
+- [ ] Autofix suggestions toward Repository / QueryBuilder APIs
+- [ ] TypeScript-aware type inference for callee resolution
+- [ ] Additional enterprise governance rules
 
-MIT
+## 🤝 Contributing
+
+```bash
+git clone https://github.com/alokraj68/eslint-plugin-typeorm-enterprise.git
+cd eslint-plugin-typeorm-enterprise
+npm install
+npm run ci     # lint + typecheck + test
+```
+
+PRs welcome. Every push and PR runs the CI matrix; merges to `main` auto-publish when `package.json` version bumps.
+
+## 📄 License
+
+[MIT](https://github.com/alokraj68/eslint-plugin-typeorm-enterprise/blob/main/LICENSE) © alokraj68
