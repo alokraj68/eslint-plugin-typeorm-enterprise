@@ -3,6 +3,18 @@
 All notable changes to this project are documented here. This project follows
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Changed
+
+- Dev dependencies: bumped `c8` to 11 and `@types/node` to 26; `typescript-eslint`
+  to the latest 8.x.
+- Held `eslint` at 9 and capped the `typescript` dev dependency to `<6.1`. The
+  current `typescript-eslint` (8.x) does not yet support ESLint 10 or TypeScript
+  6.1+, so those bumps wait on upstream. This affects the lint toolchain only —
+  consumers may use the plugin under ESLint 10 (allowed by `peerDependencies`)
+  and any TypeScript version (the shipped `.d.ts` is validated against 5.5–7 in CI).
+
 ## [2.0.0] - 2026-07-16
 
 ### Breaking
