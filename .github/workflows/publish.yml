@@ -72,7 +72,7 @@ jobs:
 
       - name: Create GitHub Release
         if: steps.check-published-version.outputs.skip_publish == 'false'
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: v${{ steps.check-published-version.outputs.version }}
           name: v${{ steps.check-published-version.outputs.version }}
