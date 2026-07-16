@@ -8,6 +8,7 @@ import {
   isIgnoredFilename,
   looksLikeSql,
 } from '../utils/ast.js';
+import { TYPEORM_TYPE_NAMES, receiverPassesTypeGate } from '../utils/types.js';
 
 // query(`SELECT * FROM users WHERE id = ${id}`)
 function inspectTemplateLiteral(node: any): boolean {
@@ -69,6 +70,7 @@ const rule: Rule.RuleModule = {
         properties: {
           restrictedMethods: { type: 'array', items: { type: 'string' } },
           allowedObjectNames: { type: 'array', items: { type: 'string' } },
+          typeAware: { type: 'boolean' },
           ignorePatterns: { type: 'array', items: { type: 'string' } },
         },
         additionalProperties: false,
@@ -85,6 +87,7 @@ const rule: Rule.RuleModule = {
       getOptionValue(options, 'restrictedMethods', DEFAULT_METHODS).map((method) => method.toLowerCase()),
     );
     const allowedObjectNames = getOptionValue(options, 'allowedObjectNames', []);
+    const typeAware = options.typeAware === true;
     const ignorePatterns = getOptionValue(options, 'ignorePatterns', []);
 
     return {
@@ -104,6 +107,11 @@ const rule: Rule.RuleModule = {
         }
 
         if (calleeInfo.objectName && allowedObjectNames.includes(calleeInfo.objectName)) {
+          return;
+        }
+
+        const receiver = node.callee.type === 'MemberExpression' ? node.callee.object : null;
+        if (!receiverPassesTypeGate(context, receiver, typeAware, TYPEORM_TYPE_NAMES)) {
           return;
         }
 

@@ -27,4 +27,9 @@ raw(`hello ${name}`);                             // not SQL
 |---|---|---|---|
 | `restrictedMethods` | `string[]` | `["query","execute","raw"]` | Methods to inspect |
 | `allowedObjectNames` | `string[]` | `[]` | Objects allowed to run raw SQL |
+| `typeAware` | `boolean` | `false` | Only flag when the receiver is a TypeORM type (requires type info) |
 | `ignorePatterns` | `string[]` | `[]` | File globs to skip |
+
+`typeAware` narrows member calls to TypeORM receivers when type information is
+available, falling back to the name-based check otherwise. See
+[type-aware mode](./no-entity-manager-query.md#type-aware-mode).

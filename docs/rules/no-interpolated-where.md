@@ -23,4 +23,9 @@ qb.where(condition);
 | Option | Type | Default | Description |
 |---|---|---|---|
 | `methods` | `string[]` | `["where","andWhere","orWhere","having"]` | Methods to inspect |
+| `typeAware` | `boolean` | `false` | Only flag when the receiver is a TypeORM QueryBuilder (requires type info) |
 | `ignorePatterns` | `string[]` | `[]` | File globs to skip |
+
+`typeAware` narrows to TypeORM QueryBuilder receivers when type information is
+available, falling back to the AST-only check otherwise. See
+[type-aware mode](./no-entity-manager-query.md#type-aware-mode).

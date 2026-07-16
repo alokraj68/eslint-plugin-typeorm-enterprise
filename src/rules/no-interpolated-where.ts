@@ -7,6 +7,7 @@ import {
   isDynamicStringExpression,
   isIgnoredFilename,
 } from '../utils/ast.js';
+import { QUERY_BUILDER_TYPE_NAMES, receiverPassesTypeGate } from '../utils/types.js';
 
 // Flags QueryBuilder where-style clauses whose condition string is built with
 // interpolation or concatenation, e.g. .where(`id = ${id}`) or
@@ -28,6 +29,7 @@ const rule: Rule.RuleModule = {
         type: 'object',
         properties: {
           methods: { type: 'array', items: { type: 'string' } },
+          typeAware: { type: 'boolean' },
           ignorePatterns: { type: 'array', items: { type: 'string' } },
         },
         additionalProperties: false,
@@ -41,6 +43,7 @@ const rule: Rule.RuleModule = {
   create(context: any) {
     const options = context.options?.[0] ? context.options[0] : {};
     const methods = new Set(getOptionValue(options, 'methods', DEFAULT_METHODS).map((m) => m.toLowerCase()));
+    const typeAware = options.typeAware === true;
     const ignorePatterns = getOptionValue(options, 'ignorePatterns', []);
 
     return {
@@ -51,6 +54,11 @@ const rule: Rule.RuleModule = {
 
         const { methodName } = getCalleeInfo(node.callee);
         if (!methodName || !methods.has(methodName.toLowerCase())) {
+          return;
+        }
+
+        const receiver = node.callee.type === 'MemberExpression' ? node.callee.object : null;
+        if (!receiverPassesTypeGate(context, receiver, typeAware, QUERY_BUILDER_TYPE_NAMES)) {
           return;
         }
 

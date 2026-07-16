@@ -31,6 +31,16 @@ export const ENTITY_MANAGER_TYPE_NAMES = new Set([
   'SqljsEntityManager',
 ]);
 
+export const QUERY_BUILDER_TYPE_NAMES = new Set([
+  'QueryBuilder',
+  'SelectQueryBuilder',
+  'InsertQueryBuilder',
+  'UpdateQueryBuilder',
+  'DeleteQueryBuilder',
+  'SoftDeleteQueryBuilder',
+  'RelationQueryBuilder',
+]);
+
 interface ParserServices {
   program?: any;
   esTreeNodeToTSNodeMap?: { get(node: any): any };
@@ -107,4 +117,21 @@ export function receiverMatchesTypes(
   const checker = services.program.getTypeChecker();
   const type = checker.getTypeAtLocation(tsNode);
   return typeMatches(checker, type, allowed);
+}
+
+// Whether a candidate report should proceed given the `typeAware` option. When
+// type-aware is off, or there is no receiver, or no type information is
+// available, it returns `true` (keep the AST-only behavior). When type
+// information is available, it returns whether the receiver is one of `allowed`.
+export function receiverPassesTypeGate(
+  context: any,
+  objectNode: any,
+  typeAware: boolean,
+  allowed: Set<string>,
+): boolean {
+  if (!typeAware || !objectNode) {
+    return true;
+  }
+  const matched = receiverMatchesTypes(context, objectNode, allowed);
+  return matched === null ? true : matched;
 }

@@ -3,15 +3,19 @@
 All notable changes to this project are documented here. This project follows
 [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [2.1.0] - 2026-07-16
 
 ### Added
 
-- Optional type-aware detection. `no-entity-manager-query` gains a `typeAware`
-  option: with the typescript-eslint parser and type information available, the
-  receiver is confirmed by its TypeScript type (any `EntityManager`, under any
-  name) instead of by identifier name, and it falls back to the name-based check
-  when no type information is present.
+- Optional **type-aware detection** across all receiver-based rules via a
+  `typeAware` option: `no-raw-query`, `require-parameterized-query`,
+  `no-entity-manager-query`, `no-unsafe-query-builder-delete`, and
+  `no-interpolated-where`. With the typescript-eslint parser and type
+  information available, calls are only flagged when the receiver's TypeScript
+  type is the relevant TypeORM class (Repository / EntityManager / DataSource /
+  QueryBuilder / …), removing false positives on lookalike objects and catching
+  receivers under any name. Falls back to the AST-only check when no type
+  information is present (including under oxlint).
 - `RELEASING.md` documenting the fast-forward release process (`main` only ever
   fast-forwards to `dev`).
 

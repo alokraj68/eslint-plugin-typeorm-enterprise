@@ -20,4 +20,10 @@ qb.update(User).set({ active: false }).where('id = :id', { id }).execute();
 
 | Option | Type | Default | Description |
 |---|---|---|---|
+| `typeAware` | `boolean` | `false` | Only flag when the `.execute()` receiver is a TypeORM QueryBuilder (requires type info) |
 | `ignorePatterns` | `string[]` | `[]` | File globs to skip |
+
+With `{ typeAware: true }` and type information, the chain is only flagged when
+its `.execute()` receiver is a TypeORM QueryBuilder, falling back to the
+AST-only check otherwise. See
+[type-aware mode](./no-entity-manager-query.md#type-aware-mode).

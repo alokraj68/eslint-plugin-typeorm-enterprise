@@ -33,7 +33,14 @@ An options object as the second element:
 | `allowedOperations` | `string[]` | `[]` | Operations to permit (overrides restricted) |
 | `restrictedMethods` | `string[]` | `["query","execute","raw"]` | Methods to inspect |
 | `allowedObjectNames` | `string[]` | `[]` | Objects allowed to run raw SQL |
+| `typeAware` | `boolean` | `false` | Only flag when the receiver is a TypeORM type (requires type info) |
 | `ignorePatterns` | `string[]` | `[]` | File globs to skip |
+
+With `{ typeAware: true }` and type information available, member calls are only
+flagged when the receiver's TypeScript type is a TypeORM class (Repository,
+EntityManager, DataSource, QueryRunner, …). Falls back to the name-based check
+when no type information is present. See
+[type-aware mode](./no-entity-manager-query.md#type-aware-mode).
 
 ```js
 'typeorm-enterprise/no-raw-query': ['error', {

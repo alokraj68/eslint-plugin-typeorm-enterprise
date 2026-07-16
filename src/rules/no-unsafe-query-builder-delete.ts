@@ -1,6 +1,7 @@
 import type { Rule } from 'eslint';
 
 import { getFilename, getOptionValue, isIgnoredFilename } from '../utils/ast.js';
+import { QUERY_BUILDER_TYPE_NAMES, receiverPassesTypeGate } from '../utils/types.js';
 
 // Flags a QueryBuilder delete/update chain that reaches `.execute()` without a
 // `.where()` (or `.andWhere()` / `.orWhere()`). Such a chain mutates every row
@@ -37,6 +38,7 @@ const rule: Rule.RuleModule = {
       {
         type: 'object',
         properties: {
+          typeAware: { type: 'boolean' },
           ignorePatterns: { type: 'array', items: { type: 'string' } },
         },
         additionalProperties: false,
@@ -49,6 +51,7 @@ const rule: Rule.RuleModule = {
   },
   create(context: any) {
     const options = context.options?.[0] ? context.options[0] : {};
+    const typeAware = options.typeAware === true;
     const ignorePatterns = getOptionValue(options, 'ignorePatterns', []);
 
     return {
@@ -74,6 +77,10 @@ const rule: Rule.RuleModule = {
 
         const hasWhere = chain.some((method) => WHERE_METHODS.has(method));
         if (hasWhere) {
+          return;
+        }
+
+        if (!receiverPassesTypeGate(context, callee.object, typeAware, QUERY_BUILDER_TYPE_NAMES)) {
           return;
         }
 

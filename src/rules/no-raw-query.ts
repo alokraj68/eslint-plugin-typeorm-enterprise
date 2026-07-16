@@ -9,6 +9,7 @@ import {
   getOptionValue,
   isIgnoredFilename,
 } from '../utils/ast.js';
+import { TYPEORM_TYPE_NAMES, receiverPassesTypeGate } from '../utils/types.js';
 
 function isStaticSqlArgument(node: any): boolean {
   if (!node) {
@@ -64,6 +65,7 @@ const rule: Rule.RuleModule = {
           allowedOperations: { type: 'array', items: { type: 'string' } },
           restrictedMethods: { type: 'array', items: { type: 'string' } },
           allowedObjectNames: { type: 'array', items: { type: 'string' } },
+          typeAware: { type: 'boolean' },
           ignorePatterns: { type: 'array', items: { type: 'string' } },
         },
         additionalProperties: false,
@@ -82,6 +84,7 @@ const rule: Rule.RuleModule = {
       getOptionValue(options, 'restrictedMethods', DEFAULT_METHODS).map((method) => method.toLowerCase()),
     );
     const allowedObjectNames = getOptionValue(options, 'allowedObjectNames', []);
+    const typeAware = options.typeAware === true;
     const ignorePatterns = getOptionValue(options, 'ignorePatterns', []);
 
     const activeOperations = restrictedOperations.filter(
@@ -106,6 +109,11 @@ const rule: Rule.RuleModule = {
         }
 
         if (calleeInfo.objectName && allowedObjectNames.includes(calleeInfo.objectName)) {
+          return;
+        }
+
+        const receiver = node.callee.type === 'MemberExpression' ? node.callee.object : null;
+        if (!receiverPassesTypeGate(context, receiver, typeAware, TYPEORM_TYPE_NAMES)) {
           return;
         }
 
