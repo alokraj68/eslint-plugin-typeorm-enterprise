@@ -27,6 +27,10 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           cache: 'npm'
 
+      # Trusted Publishing (OIDC) requires npm >= 11.5.1
+      - name: Upgrade npm
+        run: npm install -g npm@latest
+
       - name: Install dependencies
         run: npm ci
 
@@ -56,11 +60,12 @@ jobs:
             echo "skip_publish=false" >> "$GITHUB_OUTPUT"
           fi
 
+      # Trusted Publishing: OIDC via id-token permission, no NPM_TOKEN needed.
+      # Provenance is attached automatically. Requires a trusted publisher
+      # configured on npmjs.com for this repo + workflow (publish.yml).
       - name: Publish to npm
         if: steps.check-published-version.outputs.skip_publish == 'false'
-        run: npm publish --access public --provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public
 
       - name: Create GitHub Release
         if: steps.check-published-version.outputs.skip_publish == 'false'
