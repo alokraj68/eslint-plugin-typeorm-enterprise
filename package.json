@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-typeorm-enterprise",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "ESLint & oxlint plugin for TypeORM: block raw SQL, prevent SQL injection, enforce transactions, guard multi-tenant queries, and apply enterprise backend governance.",
   "keywords": [
     "eslint",
@@ -71,9 +71,9 @@
     "build": "tsup",
     "typecheck": "tsc --noEmit",
     "test": "npm run build && npm run test:run",
-    "test:run": "node --test \"tests/*.test.mjs\"",
+    "test:run": "node --test tests/*.test.mjs",
     "test:oxlint": "npm run build && node scripts/test-oxlint.mjs",
-    "coverage": "npm run build && c8 --include=\"dist/**\" --reporter=text --reporter=lcov node --test --test-isolation=none \"tests/*.test.mjs\"",
+    "coverage": "npm run build && c8 --include=\"dist/**\" --reporter=text --reporter=lcov node --test tests/*.test.mjs",
     "lint": "eslint .",
     "doc": "npm run build && node scripts/gen-rules-table.mjs",
     "doc:check": "npm run build && node scripts/gen-rules-table.mjs --check",
