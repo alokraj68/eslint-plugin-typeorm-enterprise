@@ -38,3 +38,43 @@ jobs:
 
       - name: Test
         run: npm run test
+
+  # Verify the shipped .d.ts type declarations stay valid across the
+  # TypeScript versions consumers may build with, including 6.x and the
+  # 7.x native preview (non-blocking until stable).
+  typecheck:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - ts: '5.5'
+            experimental: false
+          - ts: '5'
+            experimental: false
+          - ts: '6'
+            experimental: true
+          - ts: 'next'
+            experimental: true
+    continue-on-error: ${{ matrix.experimental }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Pin TypeScript ${{ matrix.ts }}
+        run: npm install --no-save typescript@${{ matrix.ts }}
+
+      - name: Print TypeScript version
+        run: npx tsc --version
+
+      - name: Typecheck declarations
+        run: npm run typecheck
