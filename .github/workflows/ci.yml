@@ -40,8 +40,9 @@ jobs:
         run: npm run test
 
   # Verify the shipped .d.ts type declarations stay valid across the
-  # TypeScript versions consumers may build with, including 6.x and the
-  # 7.x native preview (non-blocking until stable).
+  # TypeScript versions consumers may build with. 5.5 is the minimum
+  # supported; 6.x and 7.x are current stable releases; 'next' is the
+  # in-development preview and is allowed to fail.
   typecheck:
     runs-on: ubuntu-latest
     strategy:
@@ -53,7 +54,9 @@ jobs:
           - ts: '5'
             experimental: false
           - ts: '6'
-            experimental: true
+            experimental: false
+          - ts: '7'
+            experimental: false
           - ts: 'next'
             experimental: true
     continue-on-error: ${{ matrix.experimental }}

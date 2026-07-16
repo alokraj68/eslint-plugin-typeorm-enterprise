@@ -13,7 +13,7 @@ Roadmap and working notes for `eslint-plugin-typeorm-enterprise`.
 - [x] Branch protection on `main` and `dev` + CODEOWNERS
 - [x] cjs/mjs parity test
 - [x] Dependabot + SECURITY policy
-- [x] TypeScript version matrix (5.5, 5.x, 6.x, 7.x preview)
+- [x] TypeScript version matrix (5.5, 5.x, 6.x, 7.x stable; `next` non-blocking)
 
 ## Near term
 
