@@ -11,3 +11,6 @@ pnpm-lock.yaml
 *.tgz
 graphify-out/
 CLAUDE.md
+PLAN.md
+dist/
+.tsup/

@@ -1,0 +1,11 @@
+{
+  "jsPlugins": ["eslint-plugin-typeorm-enterprise"],
+  "rules": {
+    "typeorm-enterprise/no-raw-query": "error",
+    "typeorm-enterprise/require-parameterized-query": "error",
+    "typeorm-enterprise/no-synchronize-true": "error",
+    "typeorm-enterprise/no-entity-manager-query": "error",
+    "typeorm-enterprise/no-unsafe-query-builder-delete": "error",
+    "typeorm-enterprise/no-interpolated-where": "error"
+  }
+}

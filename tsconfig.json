@@ -9,7 +9,8 @@
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
-    "types": ["node", "eslint"]
+    "verbatimModuleSyntax": true,
+    "types": ["node"]
   },
-  "include": ["lib/**/*.d.ts", "tests/**/*.js"]
+  "include": ["src/**/*.ts", "tsup.config.ts"]
 }

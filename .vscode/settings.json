@@ -21,6 +21,20 @@
     "peacock.color": "#432363",
     "cSpell.words": [
         "alokraj",
-        "quasis"
+        "andwhere",
+        "Autobuild",
+        "findandcount",
+        "findby",
+        "findone",
+        "findoneby",
+        "llms",
+        "multitenant",
+        "orwhere",
+        "oxlint",
+        "oxlintrc",
+        "quasis",
+        "softdelete",
+        "softremove",
+        "typeorm"
     ]
 }
