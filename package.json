@@ -1,53 +1,84 @@
 {
   "name": "eslint-plugin-typeorm-enterprise",
-  "version": "1.0.1",
-  "description": "ESLint plugin to prevent raw SQL usage in TypeORM applications and support enterprise backend governance.",
+  "version": "2.0.2",
+  "description": "ESLint & oxlint plugin for TypeORM: block raw SQL, prevent SQL injection, enforce transactions, guard multi-tenant queries, and apply enterprise backend governance.",
   "keywords": [
     "eslint",
     "eslintplugin",
+    "eslint-plugin",
+    "oxlint",
+    "oxlint-plugin",
     "typeorm",
+    "orm",
     "sql",
+    "sql-injection",
+    "security",
     "governance",
     "backend",
     "enterprise",
-    "security"
+    "nestjs",
+    "express",
+    "database",
+    "static-analysis",
+    "linter",
+    "lint",
+    "flat-config",
+    "multi-tenant",
+    "query-builder",
+    "transaction"
   ],
   "license": "MIT",
   "author": "alokraj68",
+  "homepage": "https://github.com/alokraj68/eslint-plugin-typeorm-enterprise#readme",
+  "bugs": {
+    "url": "https://github.com/alokraj68/eslint-plugin-typeorm-enterprise/issues"
+  },
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/alokraj68"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/alokraj68/eslint-plugin-typeorm-enterprise.git"
   },
-  "main": "./lib/index.cjs",
-  "module": "./lib/index.mjs",
-  "types": "./lib/index.d.ts",
+  "sideEffects": false,
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "require": "./lib/index.cjs",
-      "import": "./lib/index.mjs",
-      "types": "./lib/index.d.ts"
-    },
-    "./rules/no-raw-query": {
-      "require": "./lib/rules/no-raw-query.cjs",
-      "import": "./lib/rules/no-raw-query.mjs",
-      "types": "./lib/rules/no-raw-query.d.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
     }
   },
   "files": [
-    "lib",
-    "tests",
+    "dist/**/*.cjs",
+    "dist/**/*.mjs",
+    "dist/**/*.d.ts",
+    "dist/**/*.d.cts",
+    "docs/rules",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "llms.txt"
   ],
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true
   },
   "scripts": {
-    "build": "tsc --noEmit",
+    "build": "tsup",
     "typecheck": "tsc --noEmit",
-    "test": "node tests/no-raw-query.test.js",
+    "test": "npm run build && npm run test:run",
+    "test:run": "node --test tests/*.test.mjs",
+    "test:oxlint": "npm run build && node scripts/test-oxlint.mjs",
+    "coverage": "npm run build && c8 --include=\"dist/**\" --reporter=text --reporter=lcov node --test tests/*.test.mjs",
     "lint": "eslint .",
-    "ci": "npm run lint && npm run typecheck && npm run test",
+    "doc": "npm run build && node scripts/gen-rules-table.mjs",
+    "doc:check": "npm run build && node scripts/gen-rules-table.mjs --check",
+    "ci": "npm run lint && npm run typecheck && npm run build && npm run doc:check && npm run test:run",
+    "prepublishOnly": "npm run build",
     "release": "npm run ci && npm publish --access public"
   },
   "peerDependencies": {
@@ -55,8 +86,12 @@
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
+    "c8": "^10.1.3",
     "eslint": "^9.16.0",
-    "typescript": "^5.5.0"
+    "oxlint": "^1.74.0",
+    "tsup": "^8.3.5",
+    "typescript": ">=5.5.0",
+    "typescript-eslint": "^8.18.0"
   },
   "engines": {
     "node": ">=18.0.0"

@@ -3,15 +3,14 @@
     "target": "ES2022",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "declaration": true,
-    "declarationMap": false,
-    "emitDeclarationOnly": true,
+    "noEmit": true,
     "strict": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
-    "types": ["node", "eslint"]
+    "verbatimModuleSyntax": true,
+    "types": ["node"]
   },
-  "include": ["lib/**/*.d.ts", "tests/**/*.js"]
+  "include": ["src/**/*.ts", "tsup.config.ts"]
 }

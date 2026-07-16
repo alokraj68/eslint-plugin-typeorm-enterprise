@@ -36,5 +36,96 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
+      - name: Build
+        run: npm run build
+
       - name: Test
-        run: npm run test
+        run: npm run test:run
+
+  # Verify the plugin also runs under oxlint's JS-plugin API. oxlint's plugin
+  # support is alpha, so this job is informational and does not gate merges.
+  oxlint:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: oxlint smoke test
+        run: npm run test:oxlint
+
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Coverage
+        run: npm run coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: ./coverage/lcov.info
+          fail_ci_if_error: false
+
+  # Validate that the TypeScript source compiles under the TypeScript
+  # versions consumers may build with. 5.5 is the minimum supported; 6.x
+  # and 7.x are current stable releases; 'next' is the in-development
+  # preview and is allowed to fail.
+  typecheck:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - ts: '5.5'
+            experimental: false
+          - ts: '5'
+            experimental: false
+          - ts: '6'
+            experimental: false
+          - ts: '7'
+            experimental: false
+          - ts: 'next'
+            experimental: true
+    continue-on-error: ${{ matrix.experimental }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Pin TypeScript ${{ matrix.ts }}
+        run: npm install --no-save typescript@${{ matrix.ts }}
+
+      - name: Print TypeScript version
+        run: npx tsc --version
+
+      - name: Typecheck
+        run: npm run typecheck

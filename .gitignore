@@ -10,3 +10,8 @@ yarn.lock
 pnpm-lock.yaml
 *.tgz
 graphify-out/
+CLAUDE.md
+PLAN.md
+marketing/
+dist/
+.tsup/

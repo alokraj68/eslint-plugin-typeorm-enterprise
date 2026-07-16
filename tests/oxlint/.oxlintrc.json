@@ -1,0 +1,7 @@
+{
+  "jsPlugins": ["../../dist/index.mjs"],
+  "rules": {
+    "typeorm-enterprise/no-raw-query": "error",
+    "typeorm-enterprise/no-unsafe-query-builder-delete": "error"
+  }
+}
