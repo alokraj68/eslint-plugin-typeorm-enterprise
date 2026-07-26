@@ -3,6 +3,53 @@
 All notable changes to this project are documented here. This project follows
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- New rules enforcing strictly typed raw query results, both in the `strict`
+  config and type-aware by default (`typeAware: true`):
+  - `require-typed-query-result` — `query()`, `getRawMany()`, `getRawOne()`,
+    `getRawAndEntities()` and `execute()` return `any`, so the call site must
+    declare the row shape (type argument, variable annotation, `as` assertion,
+    or the enclosing function's return type). Discarded results are not flagged.
+    With type information, results that are already typed (a wrapper, a custom
+    repository) are left alone.
+  - `no-untyped-record-escape-hatch` — blocks the broad types that satisfy the
+    rule above without declaring anything: `any`, `object`, `{}`,
+    `Record<string, any>`, `Map<string, any>`, through `Promise<…>`, arrays and
+    unions. `allowUnknown: true` permits `unknown` / `Record<string, unknown>`
+    for genuinely dynamic pivot and aggregate queries; `extraLooseTypes` adds
+    project-specific escape hatches.
+
+  Both are strict-only on purpose: on a raw-query-heavy codebase they fire on
+  nearly every call site, which is the point under `strict` but too noisy for
+  `recommended`. Both also run under oxlint (covered by the smoke test with a
+  TypeScript fixture): oxlint has no type-aware support, so they fall back to
+  the AST-only path there.
+
+- `require-query-runner-release` (`recommended`) — a QueryRunner holds a
+  dedicated pooled connection; if it is never released, or released only on the
+  happy path, a handler that leaks one per request exhausts the pool. The rule
+  tracks `createQueryRunner()` results bound to a variable and requires a
+  `release()` inside a `finally` in the same function, distinguishing "never
+  released" (`missingRelease`) from "released outside `finally`"
+  (`releaseOutsideFinally`). Options: `methods`, `releaseMethods`, `typeAware`,
+  `ignorePatterns`.
+- New `recommendedTypeChecked` and `strictTypeChecked` configs — the same rule
+  sets as `recommended` / `strict`, with `typeAware: true` applied to every rule
+  whose schema declares the option, so type-aware detection no longer has to be
+  wired up rule by rule. They need the typescript-eslint parser with a project
+  or `projectService`; without it the rules fall back to their AST-only paths,
+  so enabling the config early is harmless.
+
+### Fixed
+
+- The oxlint smoke test failed on Windows: `execFileSync` cannot spawn the
+  `npx.cmd` shim (EINVAL). It now runs the locally installed oxlint through its
+  Node entry point, which also keeps the run offline and pinned to the
+  devDependency version.
+
 ## [2.1.0] - 2026-07-16
 
 ### Added

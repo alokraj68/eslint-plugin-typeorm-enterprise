@@ -38,6 +38,7 @@ Raw and dynamically-built SQL scattered across a TypeORM codebase is a governanc
 | 🚫 **Blocks raw SQL** | Static (`no-raw-query`) and dynamic / injected (`require-parameterized-query`, `no-interpolated-where`) SQL |
 | 🧨 **Guards your data** | `no-synchronize-true` (auto-fixable) and `no-unsafe-query-builder-delete` stop schema wipes and full-table mutations |
 | 🧱 **Enforces abstractions** | `no-entity-manager-query`, `require-transaction`, `prefer-transaction-for-multiple-writes` keep access in safe layers |
+| 🔒 **Keeps raw results typed** | `require-typed-query-result` forces a row shape on `query()` / `getRawMany()`; `no-untyped-record-escape-hatch` blocks `any` and `Record<string, any>` from standing in for one |
 | 🏢 **Multi-tenant aware** | `require-tenant-scope` with configurable `tenantKeys` catches cross-tenant queries |
 | 🚀 **Performance hints** | `prefer-exists-over-count` steers existence checks away from row counts |
 | 🎚️ **Config tiers** | `recommended`, `warn`, `strict`, `performance`, `multiTenant` shareable configs |
@@ -111,8 +112,9 @@ module.exports = {
 
 ### oxlint (`.oxlintrc.json`)
 
-The rules are AST-only, so they run under [oxlint](https://oxc.rs)'s JS-plugin
-API (ESLint v9-compatible, currently alpha) with no adapter:
+Every rule works without type information, so they run under
+[oxlint](https://oxc.rs)'s JS-plugin API (ESLint v9-compatible, currently alpha)
+with no adapter:
 
 ```json
 {
@@ -120,7 +122,9 @@ API (ESLint v9-compatible, currently alpha) with no adapter:
   "rules": {
     "typeorm-enterprise/no-raw-query": "error",
     "typeorm-enterprise/require-parameterized-query": "error",
-    "typeorm-enterprise/no-unsafe-query-builder-delete": "error"
+    "typeorm-enterprise/no-unsafe-query-builder-delete": "error",
+    "typeorm-enterprise/require-typed-query-result": "error",
+    "typeorm-enterprise/no-untyped-record-escape-hatch": "error"
   }
 }
 ```
@@ -128,6 +132,12 @@ API (ESLint v9-compatible, currently alpha) with no adapter:
 The plugin's `meta.name` is `typeorm-enterprise`, so rule names are identical
 across ESLint and oxlint. Shareable configs are an ESLint feature — under oxlint,
 enable rules individually as above.
+
+oxlint has no type-aware support, so rules with a `typeAware` option fall back to
+their AST-only behavior there automatically — including
+`require-typed-query-result` and `no-untyped-record-escape-hatch`, which identify
+the receiver by name and read the type the developer wrote. oxlint parses
+TypeScript natively, so annotations and type arguments are still seen.
 
 ### Framework recipes
 
@@ -144,7 +154,9 @@ Copy-paste starters live in [`examples/`](./examples):
 |---|---|---|
 | `recommended` | `error` | Broadly-safe rules: raw SQL, injection, schema, EntityManager, unsafe deletes |
 | `warn` | `warn` | Same rules as `recommended`, as warnings |
-| `strict` | `error` | `recommended` + `require-transaction` + `prefer-transaction-for-multiple-writes` |
+| `strict` | `error` | `recommended` + `require-transaction` + `prefer-transaction-for-multiple-writes` + `require-typed-query-result` + `no-untyped-record-escape-hatch` |
+| `recommendedTypeChecked` | `error` | Same rules as `recommended`, with `typeAware: true` wherever the rule supports it |
+| `strictTypeChecked` | `error` | Same rules as `strict`, with `typeAware: true` wherever the rule supports it |
 | `performance` | `warn` | Performance-tuning hints (`prefer-exists-over-count`) |
 | `multiTenant` | `error` | `recommended` + `require-tenant-scope` |
 
@@ -157,6 +169,35 @@ module.exports = [
   // typeormEnterprise.configs.multiTenant, // for multi-tenant apps
 ];
 ```
+
+### Type-checked configs
+
+Several rules take a `typeAware` option that confirms the receiver by its
+TypeScript type instead of its name — fewer false positives, and TypeORM objects
+are caught under any variable name. Setting it per rule is easy to miss, so
+`recommendedTypeChecked` and `strictTypeChecked` turn it on everywhere it
+applies:
+
+```js
+import tseslint from 'typescript-eslint';
+import typeormEnterprise from 'eslint-plugin-typeorm-enterprise';
+
+export default [
+  {
+    files: ['src/**/*.ts'],
+    languageOptions: {
+      parser: tseslint.parser,
+      parserOptions: { projectService: true, tsconfigRootDir: import.meta.dirname },
+    },
+  },
+  typeormEnterprise.configs.strictTypeChecked,
+];
+```
+
+They need the [`typescript-eslint`](https://typescript-eslint.io) parser with a
+project or `projectService`. Without it every rule falls back to its AST-only
+behavior, so enabling the config ahead of the parser setup is safe — it just
+does less.
 
 ## 📏 Rules
 
@@ -174,6 +215,9 @@ module.exports = [
 | [`prefer-transaction-for-multiple-writes`](./docs/rules/prefer-transaction-for-multiple-writes.md) | Suggest combining multiple write operations into a single transaction. |  | ⚠️ strict |
 | [`require-tenant-scope`](./docs/rules/require-tenant-scope.md) | Require tenant-scoped access on TypeORM read and write operations (multi-tenant). |  | 🏢 multiTenant |
 | [`prefer-exists-over-count`](./docs/rules/prefer-exists-over-count.md) | Prefer an existence check over counting rows when only presence matters. |  | 🚀 performance |
+| [`require-typed-query-result`](./docs/rules/require-typed-query-result.md) | Require raw TypeORM query results to be explicitly typed. |  | ⚠️ strict |
+| [`no-untyped-record-escape-hatch`](./docs/rules/no-untyped-record-escape-hatch.md) | Disallow typing raw TypeORM query results with escape hatches such as any, object or Record<string, any>. |  | ⚠️ strict |
+| [`require-query-runner-release`](./docs/rules/require-query-runner-release.md) | Require a QueryRunner to be released in a finally block. |  | ✅ recommended |
 
 <!-- RULES:END -->
 
@@ -194,7 +238,7 @@ enforces the patterns it can prove and stays quiet on everything else.
 
 ## 🗺️ Roadmap
 
-- [x] Ten rules across SQL safety, schema, transactions, multi-tenancy, and performance
+- [x] Twelve rules across SQL safety, schema, transactions, multi-tenancy, result typing, and performance
 - [x] `recommended` / `warn` / `strict` / `performance` / `multiTenant` configs
 - [x] TypeScript source with tsup build (dual ESM + CJS)
 - [x] CI matrix (Node 18/20/22 · TypeScript 5.5–7) + coverage

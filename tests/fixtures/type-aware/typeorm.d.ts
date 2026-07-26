@@ -6,6 +6,8 @@ export declare class SelectQueryBuilder<Entity> {
   delete(): DeleteQueryBuilder<Entity>;
   update(target?: any): UpdateQueryBuilder<Entity>;
   getMany(): Promise<Entity[]>;
+  getRawMany<T = any>(): Promise<T[]>;
+  getRawOne<T = any>(): Promise<T | undefined>;
   execute(): Promise<any>;
 }
 
@@ -24,19 +26,32 @@ export declare class UpdateQueryBuilder<Entity> {
 export declare class Repository<Entity> {
   find(): Promise<Entity[]>;
   save(entity: Entity): Promise<Entity>;
-  query(sql: string): Promise<any>;
+  query<T = any>(sql: string): Promise<T>;
   createQueryBuilder(alias?: string): SelectQueryBuilder<Entity>;
 }
 
+// A custom repository that already narrows the raw result: no annotation is
+// needed at the call site, and the type-aware check must leave it alone.
+export declare class TypedRepository extends Repository<{ id: number }> {
+  query(sql: string): Promise<{ id: number }[]>;
+}
+
 export declare class EntityManager {
-  query(sql: string): Promise<any>;
+  query<T = any>(sql: string): Promise<T>;
   save(entity: any): Promise<any>;
   getRepository<Entity>(target: any): Repository<Entity>;
   createQueryBuilder(): SelectQueryBuilder<any>;
 }
 
+export declare class QueryRunner {
+  connect(): Promise<void>;
+  release(): Promise<void>;
+  manager: EntityManager;
+}
+
 export declare class DataSource {
   manager: EntityManager;
+  createQueryRunner(): QueryRunner;
   getRepository<Entity>(target: any): Repository<Entity>;
   getManager(): EntityManager;
 }

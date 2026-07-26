@@ -1,6 +1,6 @@
 # eslint-plugin-typeorm-enterprise
 
-> ESLint and oxlint plugin for TypeORM that catches unsafe database access at lint time: raw SQL, SQL injection, schema-destroying config, missing transactions, cross-tenant queries, and performance anti-patterns. Rules are AST-only (no type information required), so they run in any ESLint 9+ flat config or under oxlint with zero parser setup. Ships as a single TypeScript source compiled to dual ESM + CommonJS with bundled type declarations.
+> ESLint and oxlint plugin for TypeORM that catches unsafe database access at lint time: raw SQL, SQL injection, schema-destroying config, missing transactions, cross-tenant queries, and performance anti-patterns. Every rule works without type information, so they run in any ESLint 9+ flat config or under oxlint with zero parser setup; rules with a `typeAware` option additionally use TypeScript types when the typescript-eslint parser and a project are configured. Ships as a single TypeScript source compiled to dual ESM + CommonJS with bundled type declarations.
 
 ## Install
 
@@ -19,7 +19,8 @@ module.exports = [typeormEnterprise.configs.recommended];
 
 ```json
 { "jsPlugins": ["eslint-plugin-typeorm-enterprise"],
-  "rules": { "typeorm-enterprise/no-raw-query": "error" } }
+  "rules": { "typeorm-enterprise/no-raw-query": "error",
+             "typeorm-enterprise/require-typed-query-result": "error" } }
 ```
 
 ## Rules (prefix: `typeorm-enterprise/`)
@@ -34,11 +35,15 @@ module.exports = [typeormEnterprise.configs.recommended];
 - prefer-transaction-for-multiple-writes: combine multiple writes into one transaction (strict config).
 - require-tenant-scope: require tenant scoping on reads/writes; configurable `tenantKeys` (multiTenant config).
 - prefer-exists-over-count: prefer an existence check over counting rows (performance config).
+- require-typed-query-result: require raw query results (`query`, `getRawMany`, ...) to declare a row type; type-aware by default (strict config).
+- no-untyped-record-escape-hatch: block `any` / `object` / `Record<string, any>` as the declared type of a raw query result; `allowUnknown` permits `Record<string, unknown>` (strict config).
+- require-query-runner-release: require `createQueryRunner()` results to be released in a `finally` block, or the pooled connection leaks (recommended config).
 
 ## Configs
 
-- recommended (error) and warn: the six broadly-safe rules.
-- strict (error): recommended + require-transaction + prefer-transaction-for-multiple-writes.
+- recommended (error) and warn: the broadly-safe rules.
+- recommendedTypeChecked / strictTypeChecked (error): same rule sets as recommended / strict, with `typeAware: true` on every rule that supports it; needs the typescript-eslint parser with a project or projectService.
+- strict (error): recommended + require-transaction + prefer-transaction-for-multiple-writes + require-typed-query-result + no-untyped-record-escape-hatch.
 - performance (warn): prefer-exists-over-count.
 - multiTenant (error): recommended + require-tenant-scope.
 

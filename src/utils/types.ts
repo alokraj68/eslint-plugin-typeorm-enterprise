@@ -31,6 +31,15 @@ export const ENTITY_MANAGER_TYPE_NAMES = new Set([
   'SqljsEntityManager',
 ]);
 
+// Types that hand out a QueryRunner.
+export const QUERY_RUNNER_FACTORY_TYPE_NAMES = new Set([
+  'DataSource',
+  'Connection',
+  'EntityManager',
+  'MongoEntityManager',
+  'SqljsEntityManager',
+]);
+
 export const QUERY_BUILDER_TYPE_NAMES = new Set([
   'QueryBuilder',
   'SelectQueryBuilder',
@@ -119,6 +128,49 @@ export function receiverMatchesTypes(
   return typeMatches(checker, type, allowed);
 }
 
+// TypeScript type flags we need without importing the `typescript` package
+// (the plugin has no runtime dependency on it — the checker is only reachable
+// through parser services when the user linted with type information).
+const TS_TYPE_FLAG_ANY = 1;
+
+function unwrapResultType(checker: any, type: any, depth = 0): any {
+  if (!type || depth > 5) {
+    return type;
+  }
+
+  const name = type.getSymbol?.()?.getName?.() ?? type.symbol?.name;
+  if (name === 'Promise' || name === 'Array' || name === 'ReadonlyArray') {
+    const args = checker.getTypeArguments?.(type) ?? type.typeArguments ?? [];
+    if (args.length > 0) {
+      return unwrapResultType(checker, args[0], depth + 1);
+    }
+  }
+
+  return type;
+}
+
+// Whether the value produced by `node` is typed `any` (including `Promise<any>`
+// and `any[]`). Returns null when no type information is available.
+export function resultTypeIsAny(context: any, node: any): boolean | null {
+  const services = getParserServices(context);
+  if (!services) {
+    return null;
+  }
+
+  const tsNode = services.esTreeNodeToTSNodeMap!.get(node);
+  if (!tsNode) {
+    return null;
+  }
+
+  const checker = services.program.getTypeChecker();
+  const type = unwrapResultType(checker, checker.getTypeAtLocation(tsNode));
+  if (!type) {
+    return null;
+  }
+
+  return (type.flags & TS_TYPE_FLAG_ANY) !== 0 || type.intrinsicName === 'any';
+}
+
 // Whether a candidate report should proceed given the `typeAware` option. When
 // type-aware is off, or there is no receiver, or no type information is
 // available, it returns `true` (keep the AST-only behavior). When type
@@ -133,5 +185,5 @@ export function receiverPassesTypeGate(
     return true;
   }
   const matched = receiverMatchesTypes(context, objectNode, allowed);
-  return matched === null ? true : matched;
+  return matched ?? true;
 }

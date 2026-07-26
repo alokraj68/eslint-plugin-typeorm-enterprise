@@ -2,6 +2,9 @@
   "jsPlugins": ["../../dist/index.mjs"],
   "rules": {
     "typeorm-enterprise/no-raw-query": "error",
-    "typeorm-enterprise/no-unsafe-query-builder-delete": "error"
+    "typeorm-enterprise/no-unsafe-query-builder-delete": "error",
+    "typeorm-enterprise/require-typed-query-result": "error",
+    "typeorm-enterprise/no-untyped-record-escape-hatch": "error",
+    "typeorm-enterprise/require-query-runner-release": "error"
   }
 }
