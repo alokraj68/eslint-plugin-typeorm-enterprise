@@ -60,6 +60,7 @@
     "dist/**/*.d.cts",
     "docs/rules",
     "README.md",
+    "AGENTS.md",
     "LICENSE",
     "llms.txt"
   ],
@@ -75,8 +76,10 @@
     "test:oxlint": "npm run build && node scripts/test-oxlint.mjs",
     "coverage": "npm run build && c8 --include=\"dist/**\" --reporter=text --reporter=lcov node --test tests/*.test.mjs",
     "lint": "eslint .",
-    "doc": "npm run build && node scripts/gen-rules-table.mjs",
-    "doc:check": "npm run build && node scripts/gen-rules-table.mjs --check",
+    "doc": "npm run build && node scripts/gen-rules-table.mjs && node scripts/sync-agents-md.mjs",
+    "doc:agents": "node scripts/sync-agents-md.mjs",
+    "doc:check": "npm run build && node scripts/gen-rules-table.mjs --check && node scripts/sync-agents-md.mjs --check",
+    "site": "node scripts/build-site.mjs",
     "ci": "npm run lint && npm run typecheck && npm run build && npm run doc:check && npm run test:run",
     "prepublishOnly": "npm run build",
     "release": "npm run ci && npm publish --access public"

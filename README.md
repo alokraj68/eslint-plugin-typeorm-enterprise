@@ -51,6 +51,7 @@ Raw and dynamically-built SQL scattered across a TypeORM codebase is a governanc
 - [Configs](#-configs)
 - [Rules](#-rules)
 - [How it works](#-how-it-works)
+- [For AI coding agents](#-for-ai-coding-agents)
 - [Roadmap](#-roadmap)
 - [Contributing](#-contributing)
 - [License](#-license)
@@ -236,6 +237,30 @@ configured allow/restrict lists and `ignorePatterns` globs, and only then
 inspects the relevant argument. The design is deliberately conservative: it
 enforces the patterns it can prove and stays quiet on everything else.
 
+## 🤖 For AI coding agents
+
+This package ships a machine-readable summary following the
+[llms.txt](https://llmstxt.org) convention — every rule, every config, and the
+compatibility matrix in ~60 lines, so an agent can configure the plugin
+correctly without reading this README.
+
+| Where | What |
+|---|---|
+| <https://alokraj68.github.io/eslint-plugin-typeorm-enterprise/llms.txt> | Canonical hosted copy — fetchable by any agent with web access |
+| `node_modules/eslint-plugin-typeorm-enterprise/llms.txt` | Same file, shipped in the npm tarball for offline/local agents |
+| [`AGENTS.md`](./AGENTS.md) | Instructions for agents working **in this repository** (layout, commands, conventions) |
+
+**Using this plugin in your project?** Point your agent at the hosted URL, or
+add a line to your own `AGENTS.md` / `CLAUDE.md`:
+
+```md
+Lint rules for TypeORM data access come from eslint-plugin-typeorm-enterprise.
+Rule reference: node_modules/eslint-plugin-typeorm-enterprise/llms.txt
+```
+
+`llms.txt` is the source of truth: `AGENTS.md` is generated from it by
+`npm run doc:agents`, and CI fails on drift.
+
 ## 🗺️ Roadmap
 
 - [x] Twelve rules across SQL safety, schema, transactions, multi-tenancy, result typing, and performance
@@ -246,6 +271,7 @@ enforces the patterns it can prove and stays quiet on everything else.
 - [x] Runs under both ESLint 9+ and oxlint (JS-plugin API)
 - [x] npm publish via Trusted Publishing (OIDC) with provenance
 - [x] Optional type-aware detection (`typeAware`) across all receiver-based rules, with graceful AST-only fallback
+- [x] `llms.txt` + `AGENTS.md` for AI coding agents, published to GitHub Pages
 - [ ] Autofix suggestions toward Repository / QueryBuilder APIs
 - [ ] Documentation site / playground
 
