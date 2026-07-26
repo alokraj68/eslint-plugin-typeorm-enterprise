@@ -16,7 +16,7 @@ mkdirSync(out, { recursive: true });
 copyFileSync(join(root, 'llms.txt'), join(out, 'llms.txt'));
 
 const escape = (value) =>
-  String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 
 const html = `<!doctype html>
 <html lang="en">

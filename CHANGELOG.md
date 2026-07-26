@@ -3,6 +3,26 @@
 All notable changes to this project are documented here. This project follows
 [Semantic Versioning](https://semver.org/).
 
+## [2.3.0] - 2026-07-27
+
+### Added
+
+- `AGENTS.md` — instructions for AI coding agents working in this repository
+  (layout, commands, conventions). Agents read `AGENTS.md` automatically;
+  `llms.txt` is a web convention and was never picked up by them. The package
+  summary section is generated from `llms.txt` by `scripts/sync-agents-md.mjs`
+  (`npm run doc:agents`), and CI fails on drift, so `llms.txt` stays the single
+  source of truth.
+- `llms.txt` is now published to GitHub Pages at a stable, fetchable URL —
+  <https://alokraj68.github.io/eslint-plugin-typeorm-enterprise/llms.txt> — via
+  `scripts/build-site.mjs` and the new `pages.yml` workflow. The `/llms.txt`
+  convention only works over HTTP; a copy inside `node_modules` is unreachable
+  to agents that fetch.
+- README section "For AI coding agents" pointing at the hosted URL, the
+  in-tarball copy, and a snippet consumers can paste into their own
+  `AGENTS.md` / `CLAUDE.md`.
+- `AGENTS.md` is included in the published tarball alongside `llms.txt`.
+
 ## [2.2.0] - 2026-07-27
 
 ### Added

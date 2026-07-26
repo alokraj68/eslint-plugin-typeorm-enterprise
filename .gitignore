@@ -14,4 +14,5 @@ CLAUDE.md
 PLAN.md
 marketing/
 dist/
-.tsup/site/
+.tsup/
+site/
