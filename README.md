@@ -54,6 +54,7 @@ Raw and dynamically-built SQL scattered across a TypeORM codebase is a governanc
 - [For AI coding agents](#-for-ai-coding-agents)
 - [Roadmap](#-roadmap)
 - [Contributing](#-contributing)
+- [Also by the author](#-also-by-the-author)
 - [License](#-license)
 
 ## ✅ Requirements
@@ -298,6 +299,26 @@ Every push and PR runs the CI matrix; merges to `main` auto-publish when the
 `package.json` version bumps. Please read the
 [Code of Conduct](https://github.com/alokraj68/eslint-plugin-typeorm-enterprise/blob/main/CODE_OF_CONDUCT.md)
 and [Contributing guide](https://github.com/alokraj68/eslint-plugin-typeorm-enterprise/blob/main/CONTRIBUTING.md).
+
+## 🧰 Also by the author
+
+Same working principle as this plugin: if a rule matters, it fails the build rather
+than living in a checklist someone is trusted to follow.
+
+[craftkit](https://github.com/alokraj68/craftkit) is four of them for Claude Code, installed in one command:
+
+```bash
+npx @alokraj68/craftkit
+```
+
+| | | |
+|---|---|---|
+| ✍️ [`plainspoken`](https://www.npmjs.com/package/@alokraj68/plainspoken) | [docs](https://github.com/alokraj68/craftkit/tree/main/plugins/plainspoken) | prose that does not read as machine-written |
+| 📱 [`pagecheck`](https://www.npmjs.com/package/@alokraj68/pagecheck) | [docs](https://github.com/alokraj68/craftkit/tree/main/plugins/pagecheck) | pages that survive a phone: overflow, tiny text, tap targets, WCAG AA |
+| 📄 [`ats-resume`](https://www.npmjs.com/package/@alokraj68/ats-resume) | [docs](https://github.com/alokraj68/craftkit/tree/main/plugins/ats-resume) | a résumé an applicant tracking system can parse, and JD gap analysis |
+| 🧭 [`craft-setup`](https://github.com/alokraj68/craftkit/tree/main/plugins/craft-setup) | skill only | verify before claiming done; never commit unasked |
+
+🌐 [alokraj68.in](https://alokraj68.in) — who writes these, and what they were built for.
 
 ## 📄 License
 
