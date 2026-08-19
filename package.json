@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-typeorm-enterprise",
-  "version": "2.3.3",
+  "version": "2.3.4",
   "description": "ESLint & oxlint plugin for TypeORM: block raw SQL, prevent SQL injection, enforce transactions, guard multi-tenant queries, and apply enterprise backend governance.",
   "keywords": [
     "eslint",
@@ -92,6 +92,9 @@
   },
   "peerDependencies": {
     "eslint": "^9.0.0 || ^10.0.0"
+  },
+  "overrides": {
+    "esbuild": "^0.28.1"
   },
   "devDependencies": {
     "@types/node": "^26.1.1",

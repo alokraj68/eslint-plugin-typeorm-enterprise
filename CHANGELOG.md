@@ -3,6 +3,22 @@
 All notable changes to this project are documented here. This project follows
 [Semantic Versioning](https://semver.org/).
 
+## [2.3.4] - 2026-08-19
+
+### Security
+
+- Cleared all three Dependabot alerts. Every one was a transitive
+  **devDependency** - this package ships zero runtime dependencies, so no
+  consumer was ever exposed.
+  - `js-yaml` 4.3.0 -> 4.3.1 (high, GHSA-5p4m-2wfm-xmqj), via `eslint`
+  - `brace-expansion` (high, GHSA-mh99-v99m-4gvg, GHSA-rgw5-rvv9-x895)
+  - `esbuild` 0.27.7 -> 0.28.2 (low, GHSA-g7r4-m6w7-qqqr), via `tsup`
+- The esbuild fix needed an `overrides` entry: `tsup` pins `^0.27`, so
+  `npm audit fix` could not reach it. The advisory only applies to esbuild's
+  dev server on Windows, which `tsup` never starts - pinned anyway, because a
+  build-only tool is where an unpatched transitive dependency goes unnoticed.
+  Build and all 25 tests verified against the overridden version.
+
 ## [2.3.3] - 2026-08-19
 
 ### Added
