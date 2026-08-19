@@ -3,6 +3,18 @@
 All notable changes to this project are documented here. This project follows
 [Semantic Versioning](https://semver.org/).
 
+## [2.3.3] - 2026-08-19
+
+### Added
+
+- Buy Me a Coffee alongside GitHub Sponsors. `.github/FUNDING.yml` carries both,
+  and the `funding` field in `package.json` became an array so npm shows both on
+  the package page rather than only the GitHub one.
+- README section "Also by the author" linking
+  [craftkit](https://github.com/alokraj68/craftkit) and its four packages. Same
+  working principle as this plugin - a rule that matters fails the build -
+  pointed at prose, page layout and resumes instead of TypeORM.
+
 ## [2.3.0] - 2026-07-27
 
 ### Added
