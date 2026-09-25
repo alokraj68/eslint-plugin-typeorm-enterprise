@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-typeorm-enterprise",
-  "version": "2.3.4",
+  "version": "2.3.5",
   "description": "ESLint & oxlint plugin for TypeORM: block raw SQL, prevent SQL injection, enforce transactions, guard multi-tenant queries, and apply enterprise backend governance.",
   "keywords": [
     "eslint",
@@ -25,11 +25,14 @@
     "flat-config",
     "multi-tenant",
     "query-builder",
-    "transaction"
+    "transaction",
+    "typeorm-security",
+    "raw-sql",
+    "code-governance"
   ],
   "license": "MIT",
-  "author": "alokraj68",
-  "homepage": "https://github.com/alokraj68/eslint-plugin-typeorm-enterprise#readme",
+  "author": "Alok Rajasukumaran (https://alokraj68.in)",
+  "homepage": "https://alokraj68.in/eslint-plugin-typeorm-enterprise",
   "bugs": {
     "url": "https://github.com/alokraj68/eslint-plugin-typeorm-enterprise/issues"
   },
